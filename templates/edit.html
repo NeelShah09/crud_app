@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Transaction</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --light: #f8f9fa;
+            --dark: #212529;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .edit-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 600px;
+        }
+        
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            background: var(--secondary);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .action-btns {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        .info-text {
+            font-size: 14px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="edit-container">
+        <h1>Edit Transaction</h1>
+        <form method="POST" action="/edit_transaction/{{ transaction['tr_id'] }}">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="date">Date</label>
+                    <input type="date" class="form-control" name="date" id="date" value="{{ transaction['date'] }}" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="model_id">Mobile Model</label>
+                    <select class="form-control" name="model_id" id="model_id" required>
+                        {% for model in models %}
+                        <option value="{{ model['model_id'] }}" 
+                            {% if model['model_id'] == transaction['model_id'] %}selected{% endif %}>
+                            {{ model['brand_name'] }} {{ model['model_name'] }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <p class="info-text">Current: {{ transaction['brand_name'] }} {{ transaction['model_name'] }}</p>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="customer_id">Customer</label>
+                    <select class="form-control" name="customer_id" id="customer_id" required>
+                        {% for customer in customers %}
+                        <option value="{{ customer['customer_id'] }}" 
+                            {% if customer['customer_id'] == transaction['customer_id'] %}selected{% endif %}>
+                            {{ customer['name'] }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <p class="info-text">Current: {{ transaction['customer_name'] }}</p>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="quantity">Quantity</label>
+                    <input type="number" class="form-control" name="quantity" id="quantity" 
+                           min="1" value="{{ transaction['quantity'] }}" required>
+                </div>
+            </div>
+            
+            <div class="action-btns">
+                <a href="/dashboard" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn">Update Transaction</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
