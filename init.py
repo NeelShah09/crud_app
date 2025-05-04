@@ -92,8 +92,8 @@ def generate_transactions():
     mobiles = c.execute('SELECT model_id, price FROM mobile_details').fetchall()
     customers = c.execute('SELECT customer_id FROM customer_details').fetchall()
     
-    start_date = datetime(2024, 1, 1)
-    end_date = datetime(2025, 4, 9)
+    start_date = datetime(2024, 5, 4)
+    end_date = datetime(2025, 5, 4)
     
     current_date = start_date
     while current_date <= end_date:
