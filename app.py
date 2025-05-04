@@ -8,49 +8,17 @@ import base64
 from datetime import datetime
 
 app = Flask(__name__)
-app.secret_key = 'your_secure_secret_key_here'
+app.secret_key = 'secret_key'
 DATABASE = 'sales.db'
 
-def create_tables():
-    conn = sqlite3.connect(DATABASE)
-    c = conn.cursor()
-    
-    c.execute('''CREATE TABLE IF NOT EXISTS mobile_details
-                 (model_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                  brand_name TEXT NOT NULL,
-                  model_name TEXT NOT NULL,
-                  price REAL NOT NULL)''')
-    
-    c.execute('''CREATE TABLE IF NOT EXISTS customer_details
-                 (customer_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                  name TEXT NOT NULL,
-                  dob TEXT,
-                  gender TEXT,
-                  country TEXT,
-                  state TEXT,
-                  city TEXT,
-                  contact_no TEXT,
-                  email_id TEXT)''')
-    
-    c.execute('''CREATE TABLE IF NOT EXISTS transaction_details
-                 (tr_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                  model_id INTEGER NOT NULL,
-                  customer_id INTEGER NOT NULL,
-                  quantity INTEGER NOT NULL,
-                  date TEXT NOT NULL,
-                  total_amount REAL NOT NULL,
-                  FOREIGN KEY (model_id) REFERENCES mobile_details (model_id),
-                  FOREIGN KEY (customer_id) REFERENCES customer_details (customer_id))''')
-    
-    conn.commit()
-    conn.close()
-
 def get_db_connection():
+    """ Author: Aaryan Manish Purohit"""
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row
     return conn
 
 def generate_visualization():
+    """ Author: Aaryan Manish Purohit"""
     conn = get_db_connection()
     try:
         sales_data = conn.execute('''
@@ -60,9 +28,7 @@ def generate_visualization():
             GROUP BY md.brand_name
             ORDER BY total_sales DESC
         ''').fetchall()
-        
-        # (Keep the rest of your existing visualization code here)
-        
+                
         img = BytesIO()
         plt.savefig(img, format='png', dpi=120, bbox_inches='tight')
         img.seek(0)
@@ -73,11 +39,11 @@ def generate_visualization():
         conn.close()
 
 def generate_analytics():
+    """ Author: Aaryan Manish Purohit"""
     conn = get_db_connection()
     try:
         plt.style.use('seaborn-v0_8')
         
-        # Monthly trend plot
         monthly_buffer = BytesIO()
         plt.figure(figsize=(12, 6))
         
@@ -105,7 +71,6 @@ def generate_analytics():
         monthly_buffer.close()
         plt.close()
 
-        # Top models plot
         models_buffer = BytesIO()
         plt.figure(figsize=(12, 7))
         
@@ -132,7 +97,6 @@ def generate_analytics():
         plt.ylabel('')
         plt.gca().invert_yaxis()
         
-        # Add value labels
         for i, (unit, sale) in enumerate(zip(units, sales)):
             plt.text(unit + max(units)*0.01, i, 
                     f'{unit} units\n(${sale:,.0f})', 
@@ -151,9 +115,9 @@ def generate_analytics():
 
 @app.route('/analytics-data')
 def analytics_data():
+    """ Author: Aaryan Manish Purohit"""
     conn = get_db_connection()
     
-    # Monthly data
     monthly = conn.execute('''
         SELECT strftime('%Y-%m', date) as month, 
                SUM(total_amount) as total
@@ -162,7 +126,6 @@ def analytics_data():
         ORDER BY month
     ''').fetchall()
     
-    # Top models data
     models = conn.execute('''
         SELECT md.brand_name || ' ' || md.model_name as model,
                SUM(td.quantity) as units_sold,
@@ -174,7 +137,6 @@ def analytics_data():
         LIMIT 10
     ''').fetchall()
     
-    #  New brand distribution query
     brand_dist = conn.execute('''
         SELECT md.brand_name, SUM(td.total_amount) as total_sales
         FROM transaction_details td
@@ -183,7 +145,6 @@ def analytics_data():
         ORDER BY total_sales DESC
     ''').fetchall()
     
-    # New brand trends query
     brand_trends = conn.execute('''
         SELECT strftime('%Y-%m', td.date) as month,
                md.brand_name,
@@ -223,11 +184,11 @@ def analytics_data():
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
+    """ Author: Abhishek Manoj Sutaria"""
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
         
-        # Simple authentication - in production use proper auth with password hashing
         if username == 'admin' and password == 'admin':
             session['logged_in'] = True
             session['username'] = username
@@ -237,6 +198,7 @@ def login():
 
 @app.route('/dashboard')
 def dashboard():
+    """ Author: Aaryan Manish Purohit"""
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     
@@ -288,6 +250,7 @@ def dashboard():
 
 @app.route('/add_mobile', methods=['POST'])
 def add_mobile():
+    """ Author: Neel Sachin Shah"""
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     
@@ -307,6 +270,7 @@ def add_mobile():
 
 @app.route('/add_customer', methods=['POST'])
 def add_customer():
+    """ Author: Neel Sachin Shah"""
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     
@@ -331,6 +295,7 @@ def add_customer():
 
 @app.route('/add_transaction', methods=['POST'])
 def add_transaction():
+    """ Author: Neel Sachin Shah"""
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     
@@ -339,12 +304,10 @@ def add_transaction():
     quantity = int(request.form['quantity'])
     date = request.form['date']
     
-    # Get mobile price
     conn = get_db_connection()
     mobile = conn.execute('SELECT price FROM mobile_details WHERE model_id = ?', (model_id,)).fetchone()
     total_amount = mobile['price'] * quantity
     
-    # Insert transaction
     conn.execute('''
         INSERT INTO transaction_details (model_id, customer_id, quantity, date, total_amount)
         VALUES (?, ?, ?, ?, ?)
@@ -356,6 +319,7 @@ def add_transaction():
 
 @app.route('/delete_transaction/<int:tr_id>')
 def delete_transaction(tr_id):
+    """ Author: Neel Sachin Shah"""
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     
@@ -368,6 +332,7 @@ def delete_transaction(tr_id):
 
 @app.route('/edit_transaction/<int:tr_id>', methods=['GET', 'POST'])
 def edit_transaction(tr_id):
+    """ Author: Neel Sachin Shah"""
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     
@@ -379,11 +344,9 @@ def edit_transaction(tr_id):
         quantity = int(request.form['quantity'])
         date = request.form['date']
         
-        # Get mobile price
         mobile = conn.execute('SELECT price FROM mobile_details WHERE model_id = ?', (model_id,)).fetchone()
         total_amount = mobile['price'] * quantity
         
-        # Update transaction
         conn.execute('''
             UPDATE transaction_details 
             SET model_id = ?, customer_id = ?, quantity = ?, date = ?, total_amount = ?
@@ -393,7 +356,6 @@ def edit_transaction(tr_id):
         conn.close()
         return redirect(url_for('dashboard'))
     
-    # GET request - show edit form
     transaction = conn.execute('''
         SELECT td.*, md.brand_name, md.model_name, cd.name as customer_name
         FROM transaction_details td
@@ -409,4 +371,6 @@ def edit_transaction(tr_id):
     return render_template('edit.html', transaction=transaction, models=models, customers=customers)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    """ Author: Aaryan Manish Purohit"""
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)

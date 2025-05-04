@@ -1,3 +1,7 @@
+<!-- 
+Joint Authorship
+Authors:Neel Sachin Shah, Abhishek Manoj Sutaria
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -265,10 +269,8 @@
             <div class="tab" onclick="openTab('analytics')">Analytics</div>
             <div class="tab" onclick="openTab('add-mobile')">Add Mobile</div>
             <div class="tab" onclick="openTab('add-customer')">Add Customer</div>
-            <!-- Tabs remain unchanged -->
         </div>
         
-        <!-- Tab contents remain unchanged -->
         <div id="transactions" class="tab-content active">
             <div class="card">
                 <h2>Add New Transaction</h2>
@@ -360,7 +362,6 @@
             <div class="card">
                 <h2>Sales Analytics</h2>
                 <div class="chart-row">
-                    <!-- Existing charts -->
                     <div class="chart-container">
                         <h3>Monthly Sales Trend</h3>
                         <canvas id="monthlyChart"></canvas>
@@ -370,7 +371,6 @@
                         <canvas id="modelsChart"></canvas>
                     </div>
                 </div>
-                <!-- New charts row -->
                 <div class="chart-row">
                     <div class="chart-container">
                         <h3>Brand Sales Distribution</h3>
@@ -465,7 +465,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Stats card animation
             const statCards = document.querySelectorAll('.stat-card');
             statCards.forEach((card, index) => {
                 setTimeout(() => {
@@ -474,37 +473,30 @@
                 }, index * 150);
             });
 
-            // Set default date
             document.getElementById('date').valueAsDate = new Date();
 
-            // Chart initialization
             const analyticsTab = document.querySelector('.tab[onclick="openTab(\'analytics\')"]');
             analyticsTab.addEventListener('click', loadCharts);
-            
-            // Initial load if on analytics tab
+
             if(document.getElementById('analytics').classList.contains('active')) {
                 loadCharts();
             }
         });
 
         function openTab(tabName) {
-            // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.style.opacity = '0';
                 setTimeout(() => content.classList.remove('active'), 300);
             });
             
-            // Remove active class from buttons
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             
-            // Show selected tab
             setTimeout(() => {
                 const activeContent = document.getElementById(tabName);
                 activeContent.classList.add('active');
                 setTimeout(() => activeContent.style.opacity = '1', 50);
             }, 300);
             
-            // Set active button
             event.currentTarget.classList.add('active');
         }
 
@@ -590,7 +582,6 @@
                 });
         }
 
-        // Add new chart rendering functions
         function renderBrandChart(data) {
             const ctx = document.getElementById('brandChart').getContext('2d');
             new Chart(ctx, {
@@ -669,7 +660,7 @@
                     scales: {
                         y: {
                             beginAtZero: true,
-                            grace: '10%' // Add space at top
+                            grace: '10%'
                         },
                         x: {
                             ticks: {
@@ -678,10 +669,6 @@
                                 padding: 10
                             }
                         }
-                        // y: {
-                        //     title: { display: true, text: 'Revenue ($)' },
-                        //     beginAtZero: true
-                        // }
                     }
                 }
             });

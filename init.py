@@ -1,11 +1,11 @@
-# init.py
+## Author: Abhishek Manoj Sutaria
 import sqlite3
 import random
 from datetime import datetime, timedelta
 
 DATABASE = 'sales.db'
 
-# Create database tables
+# Creating tables in the database
 def create_tables():
     conn = sqlite3.connect(DATABASE)
     c = conn.cursor()
@@ -40,7 +40,7 @@ def create_tables():
     conn.commit()
     conn.close()
 
-# Generate mobile models
+# Mobile models are defined for sample data
 def generate_mobiles():
     brands = [
         ('Apple', ['iPhone 14', 'iPhone 14 Pro', 'iPhone 13', 'iPhone SE']),
@@ -62,7 +62,7 @@ def generate_mobiles():
     conn.commit()
     conn.close()
 
-# Generate customers
+# Customers and their details are defined for sample data
 def generate_customers():
     customers = [
         ('John Smith', '1990-05-15', 'Male', 'USA', 'CA', 'Los Angeles', '+1 555 0100', 'john@example.com'),
@@ -83,7 +83,7 @@ def generate_customers():
     conn.commit()
     conn.close()
 
-# Generate transactions (2 years of data)
+# Sample transactions are generated to test the application
 def generate_transactions():
     conn = sqlite3.connect(DATABASE)
     c = conn.cursor()
@@ -97,7 +97,7 @@ def generate_transactions():
     
     current_date = start_date
     while current_date <= end_date:
-        # Generate 0-5 transactions per day
+        # Generate 0-5 transactions per day. Number in for loop can be changed to increase number of transactions per day.
         for _ in range(random.randint(0, 5)):
             model_id, price = random.choice(mobiles)
             customer_id = random.choice(customers)[0]
@@ -109,8 +109,6 @@ def generate_transactions():
                         VALUES (?, ?, ?, ?, ?)''',
                      (model_id, customer_id, quantity, 
                       current_date.strftime('%Y-%m-%d'), total))
-        
-        # Move to next day
         current_date += timedelta(days=1)
     
     conn.commit()
@@ -121,4 +119,4 @@ if __name__ == '__main__':
     generate_mobiles()
     generate_customers()
     generate_transactions()
-    print("Database initialized with sample data!")
+    print("Database initialization completed!")
